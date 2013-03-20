@@ -2,48 +2,51 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using System.Xml;
 
-// TODO: target .NET 4.0? it will make some argument passing clearer
-
 public static class Program {
-	public static int Main(string[] args) {
+	[STAThread]
+	public static void Main(string[] args) {
 		try {
 			Operation operation = GetOperation(args);
 			string service = GetService(args);
 			string credentials = GetCredentials();
 
-			List<Authorization> authorizations = LoadAuthorizations(credentials);
+			List<Authorization> authorizations = LoadAuthorizations(credentials: credentials);
 			switch (operation) {
 				case Operation.Get: {
-						Authorization auth = Authorization.FindByService(authorizations, service);
+						Authorization auth = Authorization.FindByService(authorizations: authorizations, service: service);
 						CheckApplications();
-						ExposeAuthorizationInfo(auth);
+						ExposeAuthorizationInfo(authorization: auth);
 						break;
 					}
 				case Operation.Add: {
-						authorizations.Add(GetAuthorizationInfo(service));
-						SaveAuthorizations(authorizations, credentials);
+						Authorization auth = GetAuthorizationInfo(service: service);
+						authorizations.Add(item: auth);
+						SaveAuthorizations(authorizations: authorizations, credentials: credentials);
 						break;
 					}
 				case Operation.Remove: {
-						Authorization auth = Authorization.FindByService(authorizations, service);
-						authorizations.Remove(auth);
-						SaveAuthorizations(authorizations, credentials);
+						Authorization auth = Authorization.FindByService(authorizations: authorizations, service: service);
+						authorizations.Remove(item: auth);
+						SaveAuthorizations(authorizations: authorizations, credentials: credentials);
 						break;
 					}
 				default: {
 						throw new InvalidOperationException(string.Format("Unknown operation given : {0}", operation.ToString()));
 					}
 			}
-
-			return 0;
 		} catch (Exception ex) {
 			Console.Error.WriteLine(ex.Message);
-			return -1;
+			Environment.ExitCode = -1;
 		}
+		Console.WriteLine("Press enter to quit.");
+		Console.ReadLine();
 	}
 
 	#region Argument Processing
@@ -66,8 +69,11 @@ public static class Program {
 	#region User Interactions
 
 	public static string GetInputWithoutEcho() {
-		// TODO: implement getting input without echo
-		return Console.ReadLine();
+		ConsoleKeyInfo current;
+		List<char> input = new List<char>();
+		while ((current = Console.ReadKey(true)).Key != ConsoleKey.Enter) { input.Add(current.KeyChar); }
+		Console.WriteLine();
+		return new string(input.ToArray());
 	}
 
 	public static string GetCredentials() {
@@ -79,33 +85,52 @@ public static class Program {
 		Console.WriteLine("Please enter authorization information for {0} service.", service);
 		Console.Write("User name : ");
 		string username = Console.ReadLine();
-		Console.WriteLine("Password : ");
+		Console.Write("Password : ");
 		string password = GetInputWithoutEcho();
-		return new Authorization(service, username, password);
+		return new Authorization(service: service, username: username, password: password);
 	}
 
-	public static void ExposeAuthorizationInfo(Authorization authorizationInfo) {
-		Console.WriteLine("Exposing authorization information for {0} service.", authorizationInfo.Service);
-		if (authorizationInfo.Username == string.Empty) {
-			Console.WriteLine("User name is on clipboard.");
-			SetClipboardContent(authorizationInfo.Username);
+	public static void ExposeAuthorizationInfo(Authorization authorization) {
+		Console.WriteLine("Exposing authorization information for {0} service.", authorization.Service);
+		if (authorization.Username != string.Empty) {
+			Console.WriteLine("User name is on clipboard. Press enter for password.");
+			SetClipboardContent(content: authorization.Username);
+			Console.ReadLine();
 		}
-		Console.WriteLine("Password is on clipboard.");
-		SetClipboardContent(authorizationInfo.Password);
+		Console.WriteLine("Password is on clipboard. Press enter to clear.");
+		SetClipboardContent(content: authorization.Password);
+		Console.ReadLine();
+		ClearClipboardContent();
 	}
 
 	#endregion User Interactions
 
 	#region Operating System Interactions
 
+	public static void ClearClipboardContent() {
+		Clipboard.Clear();
+	}
+
 	public static void SetClipboardContent(string content) {
-		// TODO: interact with actual clipboard
-		Console.Error.WriteLine("Clipboard content set to : {0}.", content);
+		Clipboard.SetText(content);
 	}
 
 	public static void CheckApplications() {
-		// TODO: check for some applications here (clip board managers)
-		// if found, show a warning that they should be turned off, and request an enter to proceed
+		HashSet<string> suspectApplications = new HashSet<string> {
+			"ditto", 
+			// TODO: add more
+		};
+
+		List<Process> suspect = Process
+			.GetProcesses()
+			.Where((process) => suspectApplications.Any((partialName) => process.ProcessName.Contains(partialName)))
+			.ToList();
+
+		suspect.ForEach((process) => Console.WriteLine("Found suspect application : {0}", process.ProcessName));
+		if (suspect.Count > 0) {
+			Console.WriteLine("Press enter to continue.");
+			Console.ReadLine();
+		}
 	}
 
 	#endregion Operating System Interactions
@@ -153,9 +178,9 @@ public static class Program {
 
 		foreach (XmlNode authorizationEntry in structuredContent.SelectNodes(string.Format("/{0}/{1}", Root_ElementName, Entry_ElementName))) {
 			authorizations.Add(new Authorization(
-				authorizationEntry.Attributes[Service_AttributeName].Value,
-				authorizationEntry.Attributes[Username_AttributeName].Value,
-				authorizationEntry.Attributes[Password_AttributeName].Value));
+				service: authorizationEntry.Attributes[Service_AttributeName].Value,
+				username: authorizationEntry.Attributes[Username_AttributeName].Value,
+				password: authorizationEntry.Attributes[Password_AttributeName].Value));
 		}
 
 		return authorizations;

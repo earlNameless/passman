@@ -1,1 +1,1 @@
-%SystemRoot%\Microsoft.NET\Framework\v2.0.50727\csc.exe /out:passman.exe /target:exe /reference:System.Xml.dll Program.cs
+%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\csc.exe /out:passman.exe /target:exe Program.cs

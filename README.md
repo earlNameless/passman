@@ -14,3 +14,7 @@ Password manager with minimal code.  Goals:
     * Minimum set of dependencies (including .NET assemblies).
     * Simple build scripts.
     * Little error checking, if things fail, rely on exceptions.
+
+Things that will not be done:
+ * Delivery of binaries.
+ * Installation.
