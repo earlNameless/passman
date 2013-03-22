@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Xml;
 
 public static class Program {
+	// STA required for clipboard management
 	[STAThread]
 	public static void Main(string[] args) {
 		try {
@@ -46,8 +47,8 @@ public static class Program {
 			Console.Error.WriteLine(ex.Message);
 			Environment.ExitCode = -1;
 		}
-		Console.WriteLine("Press enter to quit.");
-		Console.ReadLine();
+		Console.WriteLine("Press enter to quit ...");
+		WaitForEnterKey();
 	}
 
 	#region Argument Processing
@@ -69,10 +70,14 @@ public static class Program {
 
 	#region User Interactions
 
+	public static void WaitForEnterKey() {
+		while (Console.ReadKey(intercept: true).Key != ConsoleKey.Enter) ;
+	}
+
 	public static string GetInputWithoutEcho() {
 		ConsoleKeyInfo current;
 		List<char> input = new List<char>();
-		while ((current = Console.ReadKey(true)).Key != ConsoleKey.Enter) { input.Add(current.KeyChar); }
+		while ((current = Console.ReadKey(intercept: true)).Key != ConsoleKey.Enter) { input.Add(current.KeyChar); }
 		Console.WriteLine();
 		return new string(input.ToArray());
 	}
@@ -94,13 +99,13 @@ public static class Program {
 	public static void ExposeAuthorizationInfo(Authorization authorization) {
 		Console.WriteLine("Exposing authorization information for {0} service.", authorization.Service);
 		if (authorization.Username != string.Empty) {
-			Console.WriteLine("User name is on clipboard. Press enter for password.");
+			Console.WriteLine("User name is on clipboard ... press enter for password.");
 			SetClipboardContent(content: authorization.Username);
-			Console.ReadLine();
+			WaitForEnterKey();
 		}
-		Console.WriteLine("Password is on clipboard. Press enter to clear.");
+		Console.WriteLine("Password is on clipboard ... press enter to clear.");
 		SetClipboardContent(content: authorization.Password);
-		Console.ReadLine();
+		WaitForEnterKey();
 		ClearClipboardContent();
 	}
 
@@ -130,7 +135,7 @@ public static class Program {
 		suspect.ForEach((process) => Console.WriteLine("Found suspect application : {0}", process.ProcessName));
 		if (suspect.Count > 0) {
 			Console.WriteLine("Press enter to continue.");
-			Console.ReadLine();
+			WaitForEnterKey();
 		}
 	}
 
