@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -137,13 +138,36 @@ public static class Program {
 
 	#region Cryptography
 
-	public static string Decrypt(byte[] encryptedAuthorizationInfo, string credentials) {
-		// TODO: implement actual decryption
-		return Encoding.UTF8.GetString(encryptedAuthorizationInfo);
+	// see http://stackoverflow.com/questions/202011/
+
+	private static string Salt = "TODO: figure out what to do about the salt.";
+
+	public static string Decrypt(byte[] encryptedAuthorizations, string credentials) {
+		return Encoding.UTF8.GetString(CryptographyHelper(
+			data: encryptedAuthorizations,
+			credentials: credentials,
+			direction: (aes) => aes.CreateDecryptor()));
 	}
-	public static byte[] Encrypt(string decryptedAuthorizationInfo, string credentials) {
-		// TODO: implement actual encryption
-		return Encoding.UTF8.GetBytes(decryptedAuthorizationInfo);
+	public static byte[] Encrypt(string decryptedAuthorizations, string credentials) {
+		return CryptographyHelper(
+			data: Encoding.UTF8.GetBytes(decryptedAuthorizations),
+			credentials: credentials,
+			direction: (aes) => aes.CreateEncryptor());
+	}
+	private static byte[] CryptographyHelper(byte[] data, string credentials, Func<Aes, ICryptoTransform> direction) {
+		PasswordDeriveBytes pdb = new PasswordDeriveBytes(credentials, Encoding.UTF8.GetBytes(Salt));
+
+		using (Aes aes = AesManaged.Create()) {
+			aes.Key = pdb.GetBytes(aes.KeySize / 8);
+			aes.IV = pdb.GetBytes(aes.BlockSize / 8);
+
+			using (MemoryStream outputStream = new MemoryStream()) {
+				using (CryptoStream encryptionStream = new CryptoStream(outputStream, direction(aes), CryptoStreamMode.Write)) {
+					encryptionStream.Write(data, 0, data.Length);
+				}
+				return outputStream.ToArray();
+			}
+		}
 	}
 
 	#endregion Cryptography
