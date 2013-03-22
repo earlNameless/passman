@@ -1,4 +1,5 @@
 ﻿// License: http://opensource.org/licenses/GPL-3.0
+// Code is written to be read from top to bottom.
 
 using System;
 using System.Collections.Generic;
@@ -50,6 +51,32 @@ public static class Program {
 		Console.WriteLine("Press enter to quit ...");
 		WaitForEnterKey();
 	}
+
+	#region Inner Classes
+
+	public enum Operation {
+		Get = 0,
+		Add,
+		Remove,
+	}
+
+	public class Authorization {
+		public Authorization(string service, string username, string password) {
+			this.Service = service;
+			this.Username = username;
+			this.Password = password;
+		}
+
+		public readonly string Service;
+		public readonly string Username;
+		public readonly string Password;
+
+		public static Authorization FindByService(IEnumerable<Authorization> authorizations, string service) {
+			return new List<Authorization>(authorizations).Find(new Predicate<Authorization>(delegate(Authorization auth) { return auth.Service == service; }));
+		}
+	}
+
+	#endregion Inner Classes
 
 	#region Argument Processing
 
@@ -141,42 +168,6 @@ public static class Program {
 
 	#endregion Operating System Interactions
 
-	#region Cryptography
-
-	// see http://stackoverflow.com/questions/202011/
-
-	private static string Salt = "TODO: figure out what to do about the salt.";
-
-	public static string Decrypt(byte[] encryptedAuthorizations, string credentials) {
-		return Encoding.UTF8.GetString(CryptographyHelper(
-			data: encryptedAuthorizations,
-			credentials: credentials,
-			direction: (aes) => aes.CreateDecryptor()));
-	}
-	public static byte[] Encrypt(string decryptedAuthorizations, string credentials) {
-		return CryptographyHelper(
-			data: Encoding.UTF8.GetBytes(decryptedAuthorizations),
-			credentials: credentials,
-			direction: (aes) => aes.CreateEncryptor());
-	}
-	private static byte[] CryptographyHelper(byte[] data, string credentials, Func<Aes, ICryptoTransform> direction) {
-		PasswordDeriveBytes pdb = new PasswordDeriveBytes(credentials, Encoding.UTF8.GetBytes(Salt));
-
-		using (Aes aes = AesManaged.Create()) {
-			aes.Key = pdb.GetBytes(aes.KeySize / 8);
-			aes.IV = pdb.GetBytes(aes.BlockSize / 8);
-
-			using (MemoryStream outputStream = new MemoryStream()) {
-				using (CryptoStream encryptionStream = new CryptoStream(outputStream, direction(aes), CryptoStreamMode.Write)) {
-					encryptionStream.Write(data, 0, data.Length);
-				}
-				return outputStream.ToArray();
-			}
-		}
-	}
-
-	#endregion Cryptography
-
 	#region Data Management
 
 	/*
@@ -239,26 +230,40 @@ public static class Program {
 	}
 
 	#endregion Data Management
-}
 
-public enum Operation {
-	Get = 0,
-	Add,
-	Remove,
-}
+	#region Cryptography
 
-public class Authorization {
-	public Authorization(string service, string username, string password) {
-		this.Service = service;
-		this.Username = username;
-		this.Password = password;
+	// see http://stackoverflow.com/questions/202011/
+
+	private static string Salt = "TODO: figure out what to do about the salt.";
+
+	public static string Decrypt(byte[] encryptedAuthorizations, string credentials) {
+		return Encoding.UTF8.GetString(CryptographyHelper(
+			data: encryptedAuthorizations,
+			credentials: credentials,
+			direction: (aes) => aes.CreateDecryptor()));
+	}
+	public static byte[] Encrypt(string decryptedAuthorizations, string credentials) {
+		return CryptographyHelper(
+			data: Encoding.UTF8.GetBytes(decryptedAuthorizations),
+			credentials: credentials,
+			direction: (aes) => aes.CreateEncryptor());
+	}
+	private static byte[] CryptographyHelper(byte[] data, string credentials, Func<Aes, ICryptoTransform> direction) {
+		PasswordDeriveBytes pdb = new PasswordDeriveBytes(credentials, Encoding.UTF8.GetBytes(Salt));
+
+		using (Aes aes = AesManaged.Create()) {
+			aes.Key = pdb.GetBytes(aes.KeySize / 8);
+			aes.IV = pdb.GetBytes(aes.BlockSize / 8);
+
+			using (MemoryStream outputStream = new MemoryStream()) {
+				using (CryptoStream encryptionStream = new CryptoStream(outputStream, direction(aes), CryptoStreamMode.Write)) {
+					encryptionStream.Write(data, 0, data.Length);
+				}
+				return outputStream.ToArray();
+			}
+		}
 	}
 
-	public readonly string Service;
-	public readonly string Username;
-	public readonly string Password;
-
-	public static Authorization FindByService(IEnumerable<Authorization> authorizations, string service) {
-		return new List<Authorization>(authorizations).Find(new Predicate<Authorization>(delegate(Authorization auth) { return auth.Service == service; }));
-	}
+	#endregion Cryptography
 }

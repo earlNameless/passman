@@ -1,0 +1,1 @@
+"%ProgramFiles%\Mono-2.10.9\bin\dmcs" -out:passman.exe -target:exe -reference:System.Windows.Forms Program.cs
