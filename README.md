@@ -18,3 +18,19 @@ Password manager with minimal code.  Goals:
 Things that will not be done:
  * Delivery of binaries.
  * Installation.
+
+Build requirements, pick *one* of below:
+ * Microsoft .NET Framework 4.0
+    1. Install Microsoft .NET Framework 4.0 Full Profile
+	2. Run build_microsoft.bat
+ * Mono 2.8 on Windows
+    1. Install Mono 2.8 or higher.
+	2. Run build_mono_windows.bat
+ * Linux
+    1. Not supported due to different clipboard management.
+
+Configure:
+ 1. Configure your own custom salt in passman.exe.config
+    * This will be unique for you, does not have to be secret, just unique.
+    * If you lose it, you will *not* be able to decrypt the data.
+ 2. If you use a clipboard manager, add it to CheckApplications() method.
