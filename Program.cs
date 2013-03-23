@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -235,7 +236,13 @@ public static class Program {
 
 	// see http://stackoverflow.com/questions/202011/
 
-	private static string Salt = "TODO: figure out what to do about the salt.";
+	private static string Salt {
+		get {
+			string salt = ConfigurationManager.AppSettings["salt"];
+			if (string.IsNullOrEmpty(salt)) { throw new Exception("Configure the salt value in app.config"); }
+			return salt;
+		}
+	}
 
 	public static string Decrypt(byte[] encryptedAuthorizations, string credentials) {
 		return Encoding.UTF8.GetString(CryptographyHelper(
