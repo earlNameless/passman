@@ -1,7 +1,10 @@
 passman
 =======
 
-Password manager with minimal code.  Goals:
+Password manager with minimal code.
+
+Goals
+-----
  1. Provide a fairly easy to use safe password manager.
     * Storage has to be encrypted with algorithm that takes forever to decrypt brute force.
     * Storage should be easily relocatable.
@@ -15,11 +18,15 @@ Password manager with minimal code.  Goals:
     * Simple build scripts.
     * Little error checking, if things fail, rely on exceptions.
 
-Things that will not be done:
+
+Things that will not be done
+----------------------------
  * Delivery of binaries.
  * Installation.
 
-Build requirements, pick *one* of below:
+Build requirements
+------------------
+Pick *one* of below:
  * Microsoft .NET Framework 4.0
     1. Install Microsoft .NET Framework 4.0 Full Profile
 	2. Run build_microsoft.bat
@@ -29,8 +36,14 @@ Build requirements, pick *one* of below:
  * Linux
     1. Not supported due to different clipboard management.
 
-Configure:
+Configure
+---------
  1. Configure your own custom salt in passman.exe.config
     * This will be unique for you, does not have to be secret, just unique.
     * If you lose it, you will *not* be able to decrypt the data.
  2. If you use a clipboard manager, add it to CheckApplications() method.
+
+Other
+-----
+ * License: http://www.apache.org/licenses/LICENSE-2.0
+ * Project Home: https://github.com/earlNameless/passman
