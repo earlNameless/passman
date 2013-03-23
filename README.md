@@ -1,7 +1,8 @@
 passman
 =======
 
-Password manager with minimal code.
+Password manager with minimal code.  Why? Because others have too much code for me to
+trust them.
 
 Goals
 -----
