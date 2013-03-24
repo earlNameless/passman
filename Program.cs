@@ -166,8 +166,7 @@ public static class Program {
 
 	public static void CheckApplications() {
 		HashSet<string> suspectApplications = new HashSet<string> {
-			"ditto", 
-			// TODO: add more
+			"ditto", "clipx", "clcl", "arsclip", "clipmate",
 		};
 
 		List<Process> suspect = Process
