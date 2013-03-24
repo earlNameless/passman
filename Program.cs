@@ -88,7 +88,7 @@ public static class Program {
 		public readonly string Password;
 
 		public static Authorization FindByService(IEnumerable<Authorization> authorizations, string service) {
-			return new List<Authorization>(authorizations).Find(new Predicate<Authorization>(delegate(Authorization auth) { return auth.Service == service; }));
+			return authorizations.FirstOrDefault((auth) => auth.Service == service);
 		}
 	}
 
