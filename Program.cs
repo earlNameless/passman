@@ -157,21 +157,33 @@ public static class Program {
 	#region Operating System Interactions
 
 	public static void ClearClipboardContent() {
-		//Clipboard.Clear();
-		SetClipboardContent(string.Empty);
+		switch(Environment.OSVersion.Platform) {
+			case PlatformID.Win32NT:
+				Clipboard.Clear();
+				break;
+			case PlatformID.Unix:
+				SetClipboardContent(string.Empty);
+				break;
+		}
 	}
 
 	public static void SetClipboardContent(string content) {
-		//Clipboard.SetText(content);
-		Process p = new Process();
-		p.StartInfo.FileName = "xclip";
-		p.StartInfo.CreateNoWindow = true;
-		p.StartInfo.UseShellExecute = false;
-		p.StartInfo.RedirectStandardInput = true;
-		p.Start();
-		p.StandardInput.WriteLine(content);
-		p.StandardInput.Dispose();
-		p.WaitForExit();
+		switch(Environment.OSVersion.Platform) {
+			case PlatformID.Win32NT:
+				Clipboard.SetText(content);
+				break;
+			case PlatformID.Unix:
+				Process p = new Process();
+				p.StartInfo.FileName = "xclip";
+				p.StartInfo.CreateNoWindow = true;
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.RedirectStandardInput = true;
+				p.Start();
+				p.StandardInput.WriteLine(content);
+				p.StandardInput.Dispose();
+				p.WaitForExit();
+				break;
+		}
 	}
 
 	public static void CheckApplications() {
