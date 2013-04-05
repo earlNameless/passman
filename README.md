@@ -35,7 +35,19 @@ Pick *one* of below:
     1. Install Mono 2.8 or higher.
 	2. Run build_mono_windows.bat
  * Linux
-    1. Not supported due to different clipboard management.
+    1. Install Mono 2.8 or higher.
+        2. Run ./build_mono_linux.sh
+
+In each case the binary created is cross-platform compatible.
+
+Runtime Requirements
+--------------------
+ * Windows, one of:
+   1. Microsoft .NET Framework 4.0
+   2. Mono 2.8 or higher
+ * Linux, all:
+   1. Mono 2.8 or higher
+   2. xclip
 
 Configure
 ---------
@@ -48,3 +60,4 @@ Other
 -----
  * License: http://www.apache.org/licenses/LICENSE-2.0
  * Project Home: https://github.com/earlNameless/passman
+
