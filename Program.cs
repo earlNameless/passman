@@ -157,11 +157,21 @@ public static class Program {
 	#region Operating System Interactions
 
 	public static void ClearClipboardContent() {
-		Clipboard.Clear();
+		//Clipboard.Clear();
+		SetClipboardContent(string.Empty);
 	}
 
 	public static void SetClipboardContent(string content) {
-		Clipboard.SetText(content);
+		//Clipboard.SetText(content);
+		Process p = new Process();
+		p.StartInfo.FileName = "xclip";
+		p.StartInfo.CreateNoWindow = true;
+		p.StartInfo.UseShellExecute = false;
+		p.StartInfo.RedirectStandardInput = true;
+		p.Start();
+		p.StandardInput.WriteLine(content);
+		p.StandardInput.Dispose();
+		p.WaitForExit();
 	}
 
 	public static void CheckApplications() {
