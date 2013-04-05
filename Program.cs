@@ -157,16 +157,41 @@ public static class Program {
 	#region Operating System Interactions
 
 	public static void ClearClipboardContent() {
-		Clipboard.Clear();
+		switch(Environment.OSVersion.Platform) {
+			case PlatformID.Win32NT:
+				Clipboard.Clear();
+				break;
+			case PlatformID.Unix:
+				SetClipboardContent(string.Empty);
+				break;
+		}
 	}
 
 	public static void SetClipboardContent(string content) {
-		Clipboard.SetText(content);
+		switch(Environment.OSVersion.Platform) {
+			case PlatformID.Win32NT:
+				Clipboard.SetText(content);
+				break;
+			case PlatformID.Unix:
+				Process p = new Process();
+				p.StartInfo.FileName = "xclip";
+				p.StartInfo.CreateNoWindow = true;
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.RedirectStandardInput = true;
+				p.Start();
+				p.StandardInput.Write(content);
+				p.StandardInput.Dispose();
+				p.WaitForExit();
+				break;
+		}
 	}
 
 	public static void CheckApplications() {
 		HashSet<string> suspectApplications = new HashSet<string> {
+			// Windows
 			"ditto", "clipx", "clcl", "arsclip", "clipmate",
+			// GNU\Linux
+			"glippy", "glipper", "parcellite", "pastie", "klipper",
 		};
 
 		List<Process> suspect = Process
