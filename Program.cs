@@ -179,7 +179,7 @@ public static class Program {
 				p.StartInfo.UseShellExecute = false;
 				p.StartInfo.RedirectStandardInput = true;
 				p.Start();
-				p.StandardInput.WriteLine(content);
+				p.StandardInput.Write(content);
 				p.StandardInput.Dispose();
 				p.WaitForExit();
 				break;
