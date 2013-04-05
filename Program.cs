@@ -188,7 +188,10 @@ public static class Program {
 
 	public static void CheckApplications() {
 		HashSet<string> suspectApplications = new HashSet<string> {
+			// Windows
 			"ditto", "clipx", "clcl", "arsclip", "clipmate",
+			// GNU\Linux
+			"glippy", "glipper", "parcellite", "pastie", "klipper",
 		};
 
 		List<Process> suspect = Process
