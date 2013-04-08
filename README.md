@@ -29,17 +29,17 @@ Build requirements
 Pick *one* of below:
  * Microsoft .NET Framework 4.0
     1. Install Microsoft .NET Framework 4.0 Full Profile
-	2. Run `build_microsoft.bat`
+    2. Run `build_microsoft.bat`
  * Mono 2.8 on Windows
     1. Install Mono 2.8 or higher.
-	2. Run `build_mono_windows.bat`
+    2. Run `build_mono_windows.bat`
  * Linux
     1. Install Mono 2.8 or higher.
-        2. Run `./build_mono_linux.sh`
+    2. Run `./build_mono_linux.sh`
 
 In each case the binary created is cross-platform compatible.
 
-Runtime Requirements
+Runtime requirements
 --------------------
  * Windows, one of:
    1. Microsoft .NET Framework 4.0
