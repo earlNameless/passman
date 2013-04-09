@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -33,27 +34,37 @@ public static class Program {
 	public static void Main(string[] args) {
 		try {
 			Operation operation = GetOperation(args);
-			string service = GetService(args);
+			string serviceName = GetService(args);
 			string credentials = GetCredentials();
 
 			List<Authorization> authorizations = LoadAuthorizations(credentials: credentials);
 			switch (operation) {
 				case Operation.Get: {
-						Authorization auth = Authorization.FindByService(authorizations: authorizations, service: service);
+						Authorization auth = Authorization.FindByService(authorizations: authorizations, service: serviceName);
 						CheckApplications();
 						ExposeAuthorizationInfo(authorization: auth);
 						break;
 					}
 				case Operation.Add: {
-						Authorization auth = GetAuthorizationInfo(service: service);
+						Authorization auth = GetAuthorizationInfo(service: serviceName);
 						authorizations.Add(item: auth);
 						SaveAuthorizations(authorizations: authorizations, credentials: credentials);
 						break;
 					}
 				case Operation.Remove: {
-						Authorization auth = Authorization.FindByService(authorizations: authorizations, service: service);
+						Authorization auth = Authorization.FindByService(authorizations: authorizations, service: serviceName);
 						authorizations.Remove(item: auth);
 						SaveAuthorizations(authorizations: authorizations, credentials: credentials);
+						break;
+					}
+				case Operation.List: {
+						Regex pattern = new Regex(pattern: serviceName);
+						Console.WriteLine("Authorizations found :");
+						foreach(Authorization auth in authorizations) {
+							if(pattern.IsMatch(auth.Service)) {
+								Console.WriteLine("\t{0}", auth.Service);
+							}
+						}
 						break;
 					}
 				default: {
@@ -61,7 +72,7 @@ public static class Program {
 					}
 			}
 		} catch (Exception ex) {
-			Console.Error.WriteLine(ex.Message);
+			Console.Error.WriteLine("Error : {0}\n{1}", ex.Message, ex.StackTrace);
 			Environment.ExitCode = -1;
 		}
 		Console.WriteLine("Press enter to quit ...");
@@ -74,6 +85,7 @@ public static class Program {
 		Get = 0,
 		Add,
 		Remove,
+		List,
 	}
 
 	public class Authorization {
@@ -97,7 +109,7 @@ public static class Program {
 	#region Argument Processing
 
 	public static void ShowHelp() {
-		Console.WriteLine("Usage: add|remove|get service");
+		Console.WriteLine("Usage: add|remove|get|list service");
 	}
 
 	public static Operation GetOperation(string[] args) {
