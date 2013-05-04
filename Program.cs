@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright 2013 Pavel Puchkarev
+ * Copyright 2013 Pavel Puchkarev, Corey Bonnell
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public static class Program {
 		public readonly string Password;
 
 		public static Authorization FindByService(IEnumerable<Authorization> authorizations, string service) {
-			return new List<Authorization>(authorizations).Find(new Predicate<Authorization>(delegate(Authorization auth) { return auth.Service == service; }));
+			return authorizations.FirstOrDefault((auth) => auth.Service == service);
 		}
 	}
 
