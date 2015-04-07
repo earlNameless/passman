@@ -308,7 +308,7 @@ public static class Program {
 			direction: (aes) => aes.CreateEncryptor());
 	}
 	private static byte[] CryptographyHelper(byte[] data, string credentials, Func<Aes, ICryptoTransform> direction) {
-		PasswordDeriveBytes pdb = new PasswordDeriveBytes(credentials, Encoding.UTF8.GetBytes(Salt));
+		var pdb = new Rfc2898DeriveBytes(credentials, Encoding.UTF8.GetBytes(Salt));
 
 		using (Aes aes = AesManaged.Create()) {
 			aes.Key = pdb.GetBytes(aes.KeySize / 8);
