@@ -51,7 +51,7 @@ Runtime requirements
 Configure
 ---------
  1. Configure your own custom salt in passman.exe.config
-    * This will be unique for you, does not have to be secret, just unique.
+    * This will be unique for you, does not have to be secret, just unique.  At least 8 characters in length.
     * If you lose it, you will *not* be able to decrypt the data.
  2. If you use a clipboard manager, add it to CheckApplications() method.
 
