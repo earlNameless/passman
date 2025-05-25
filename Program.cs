@@ -199,22 +199,26 @@ public static class Program {
 	}
 
 	public static void CheckApplications() {
-		HashSet<string> suspectApplications = new HashSet<string> {
-			// Windows
+		try {
+			HashSet<string> suspectApplications = new HashSet<string> {
+				// Windows
 			"ditto", "clipx", "clcl", "arsclip", "clipmate",
 			// GNU\Linux
-			"glippy", "glipper", "parcellite", "pastie", "klipper",
-		};
+				"glippy", "glipper", "parcellite", "pastie", "klipper",
+			};
 
-		List<Process> suspect = Process
-			.GetProcesses()
-			.Where((process) => suspectApplications.Any((partialName) => process.ProcessName.Contains(partialName)))
-			.ToList();
+			List<Process> suspect = Process
+				.GetProcesses()
+				.Where((process) => suspectApplications.Any((partialName) => process.ProcessName.Contains(partialName)))
+				.ToList();
 
-		suspect.ForEach((process) => Console.WriteLine("Found suspect application : {0}", process.ProcessName));
-		if (suspect.Count > 0) {
-			Console.WriteLine("Press enter to continue.");
-			WaitForEnterKey();
+			suspect.ForEach((process) => Console.WriteLine("Found suspect application : {0}", process.ProcessName));
+			if (suspect.Count > 0) {
+				Console.WriteLine("Press enter to continue.");
+				WaitForEnterKey();
+			}
+		} catch (Exception ex) {
+			Console.Error.WriteLine("Warning: Could not enumerate running processes to check for suspect applications due to an error (this can happen when not running as root). Proceeding without this check. Details: " + ex.Message);
 		}
 	}
 
